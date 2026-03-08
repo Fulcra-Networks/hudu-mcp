@@ -2,8 +2,6 @@
 
 A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT documentation platform. Connect any LLM directly to your Hudu instance to manage companies, assets, knowledge base articles, and other IT systems documentation using natural language.
 
-Built by [Fulcra ](https://fulcra.net) for MSPs and IT teams who use Hudu as their IT documentation and asset management platform.
-
 ---
 
 ## Features
