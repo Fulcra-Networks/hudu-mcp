@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+api-docs.json
+coverage/
+*.tsbuildinfo
+
+# Local dev / planning files
+.claude/
+PLAN.md
+test-prompt.md
+
+# OS / editor artifacts
+Thumbs.db
+.DS_Store
+npm-debug.log*
+*.log

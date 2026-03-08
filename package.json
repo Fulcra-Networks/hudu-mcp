@@ -1,0 +1,48 @@
+{
+  "name": "@fulcra-networks/hudu-mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol (MCP) server for the Hudu IT documentation platform — manage companies, assets, articles, and more via Claude.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "hudu-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "generate:schemas": "tsx scripts/generate-schemas.ts"
+  },
+  "keywords": [
+    "hudu",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "msp",
+    "it-documentation",
+    "knowledge-base",
+    "asset-management"
+  ],
+  "author": "Fulcra Networks",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
