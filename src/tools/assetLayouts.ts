@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { HuduClient } from "../client/HuduClient.js";
-import { formatToolSuccess, formatToolError } from "../types/mcp.js";
+import { formatToolSuccess, formatToolError, withPaginationMeta } from "../types/mcp.js";
 import { ListAssetLayoutsSchema, GetAssetLayoutSchema } from "../schemas/assetLayouts.js";
 
 const GetAssetLayoutsInput = ListAssetLayoutsSchema.extend({
@@ -12,9 +12,10 @@ const GetAssetLayoutsInput = ListAssetLayoutsSchema.extend({
 
 export function registerAssetLayoutTools(server: McpServer, client: HuduClient): void {
   server.tool(
-    "get_asset_layouts",
+    "hudu_get_asset_layouts",
     "Get asset layouts from Hudu. Returns full details by default. Asset layouts define the structure and fields for a category of assets. Use summary: true for lightweight results.",
     GetAssetLayoutsInput.shape,
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listAssetLayouts(params as Record<string, unknown>);
@@ -25,9 +26,9 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
               field_count: Array.isArray(fields) ? fields.length : 0,
             })
           );
-          return formatToolSuccess({ asset_layouts: items });
+          return formatToolSuccess(withPaginationMeta({ asset_layouts: items }, "asset_layouts", params));
         }
-        return formatToolSuccess(result);
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "asset_layouts", params));
       } catch (error) {
         return formatToolError(error);
       }
@@ -35,9 +36,10 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
   );
 
   server.tool(
-    "get_asset_layout",
+    "hudu_get_asset_layout",
     "Get a single asset layout from Hudu by its ID.",
     GetAssetLayoutSchema.shape,
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id }) => {
       try {
         const result = await client.getAssetLayout(id);
@@ -49,9 +51,10 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
   );
 
   server.tool(
-    "get_asset_layout_fields",
+    "hudu_get_asset_layout_fields",
     "Get the field definitions for an asset layout. Returns only the information needed to populate custom_fields correctly: label, field_type, required, and hint. Call this before create_asset or update_asset to ensure custom_fields keys match the exact field labels defined in the layout.",
     { id: GetAssetLayoutSchema.shape.id },
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id }) => {
       try {
         const result = await client.getAssetLayout(id) as Record<string, unknown>;

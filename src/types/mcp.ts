@@ -2,10 +2,20 @@ import { ZodError } from "zod";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { HuduApiError } from "../client/HuduApiError.js";
 
+const MAX_RESPONSE_CHARS = 25_000;
+
 export function formatToolSuccess(data: unknown): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-  };
+  const text = JSON.stringify(data, null, 2);
+  if (text.length > MAX_RESPONSE_CHARS) {
+    return {
+      content: [{
+        type: "text",
+        text: text.slice(0, MAX_RESPONSE_CHARS)
+          + "\n\n[Response truncated — use page_size, filters, or summary: true to reduce results]",
+      }],
+    };
+  }
+  return { content: [{ type: "text", text }] };
 }
 
 export function formatToolError(error: unknown): CallToolResult {
@@ -58,5 +68,26 @@ export function formatToolError(error: unknown): CallToolResult {
   return {
     content: [{ type: "text", text: "An unknown error occurred." }],
     isError: true,
+  };
+}
+
+export function withPaginationMeta(
+  data: Record<string, unknown>,
+  itemsKey: string,
+  params: Record<string, unknown>
+): Record<string, unknown> {
+  const items = data[itemsKey];
+  const count = Array.isArray(items) ? items.length : 0;
+  const page = typeof params.page === "number" ? params.page : 1;
+  const pageSize = typeof params.page_size === "number" ? params.page_size : undefined;
+
+  return {
+    ...data,
+    _pagination: {
+      count,
+      page,
+      ...(pageSize !== undefined ? { has_more: count >= pageSize } : {}),
+      ...(pageSize !== undefined && count >= pageSize ? { next_page: page + 1 } : {}),
+    },
   };
 }

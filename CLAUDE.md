@@ -36,9 +36,10 @@ The generator has overrides for Swagger inaccuracies:
 ## Conventions
 
 - Tool naming follows a two-tier pattern:
-  - `get_<resources>` (multiple) — query multiple items with filters, returns full details by default. Accepts optional `summary: true` for lightweight results.
-  - `get_<resource>` (singular) — get one item by ID, always returns full details
-  - `create_<resource>`, `update_<resource>`, `archive_<resource>`, `unarchive_<resource>`, `delete_<resource>` — write operations, unchanged
+  - `hudu_get_<resources>` (multiple) — query multiple items with filters, returns full details by default. Accepts optional `summary: true` for lightweight results.
+  - `hudu_get_<resource>` (singular) — get one item by ID, always returns full details
+  - `hudu_create_<resource>`, `hudu_update_<resource>`, `hudu_archive_<resource>`, `hudu_unarchive_<resource>`, `hudu_delete_<resource>` — write operations
+- All tools include MCP annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint) passed as the 4th argument to `server.tool()`, before the callback.
 - The `summary` param is added via `.extend()` on the auto-generated `List*Schema` in each tool file — not in the schema files themselves
 - Tool handlers never throw — always return `formatToolSuccess` or `formatToolError`
 - All Zod fields use `.describe()` — these are shown to Claude as parameter descriptions

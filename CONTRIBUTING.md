@@ -165,9 +165,10 @@ const GetWebsitesInput = ListWebsitesSchema.extend({
 
 export function registerWebsiteTools(server: McpServer, client: HuduClient): void {
   server.tool(
-    "get_websites",
+    "hudu_get_websites",
     "Get websites from Hudu. Returns full details by default. Use summary: true for lightweight results.",
     GetWebsitesInput.shape,
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listWebsites(params as Record<string, unknown>);
@@ -207,9 +208,10 @@ export function registerAllTools(server: McpServer, client: HuduClient): void {
 ## Conventions
 
 - Tool naming follows a two-tier pattern:
-  - `get_<resources>` (multiple) — query multiple items with filters, full details by default, optional `summary: true`
-  - `get_<resource>` (singular) — get one item by ID
-  - `create_<resource>`, `update_<resource>`, etc. — write operations
+  - `hudu_get_<resources>` (multiple) — query multiple items with filters, full details by default, optional `summary: true`
+  - `hudu_get_<resource>` (singular) — get one item by ID
+  - `hudu_create_<resource>`, `hudu_update_<resource>`, etc. — write operations
+- All tools include MCP annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint) to help clients understand tool behavior.
 - The `summary` param is added via `.extend()` on the auto-generated `List*Schema` — never edit schema files directly
 - All tool inputs validated with Zod schemas in `src/schemas/`
 - Tool handlers never throw — always return `formatToolSuccess` or `formatToolError`

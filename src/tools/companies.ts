@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { HuduClient } from "../client/HuduClient.js";
-import { formatToolSuccess, formatToolError } from "../types/mcp.js";
+import { formatToolSuccess, formatToolError, withPaginationMeta } from "../types/mcp.js";
 import {
   ListCompaniesSchema,
   GetCompanySchema,
@@ -19,9 +19,10 @@ const GetCompaniesInput = ListCompaniesSchema.extend({
 
 export function registerCompanyTools(server: McpServer, client: HuduClient): void {
   server.tool(
-    "get_companies",
+    "hudu_get_companies",
     "Get companies from Hudu. Returns full details by default. Optionally filter by name, company type, or a search term. Use summary: true for lightweight results.",
     GetCompaniesInput.shape,
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listCompanies(params as Record<string, unknown>);
@@ -29,9 +30,9 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
           const items = (result.companies as Record<string, unknown>[]).map(
             ({ notes, integrations, ...rest }) => rest
           );
-          return formatToolSuccess({ companies: items });
+          return formatToolSuccess(withPaginationMeta({ companies: items }, "companies", params));
         }
-        return formatToolSuccess(result);
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "companies", params));
       } catch (error) {
         return formatToolError(error);
       }
@@ -39,9 +40,10 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   );
 
   server.tool(
-    "get_company",
+    "hudu_get_company",
     "Get a single company from Hudu by its ID.",
     GetCompanySchema.shape,
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id }) => {
       try {
         const result = await client.getCompany(id);
@@ -53,9 +55,10 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   );
 
   server.tool(
-    "create_company",
+    "hudu_create_company",
     "Create a new company in Hudu. Only the name is required; all other fields are optional.",
     CreateCompanySchema.shape,
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     async (args) => {
       try {
         const result = await client.createCompany(args as Record<string, unknown>);
@@ -67,9 +70,10 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   );
 
   server.tool(
-    "update_company",
+    "hudu_update_company",
     "Update an existing company in Hudu. Provide only the fields you want to change.",
     UpdateCompanySchema.shape,
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id, ...data }) => {
       try {
         const result = await client.updateCompany(id, data as Record<string, unknown>);
@@ -81,9 +85,10 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   );
 
   server.tool(
-    "archive_company",
+    "hudu_archive_company",
     "Archive a company in Hudu. Archived companies are hidden from normal views but not deleted.",
     ArchiveCompanySchema.shape,
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id }) => {
       try {
         const result = await client.archiveCompany(id);
@@ -95,9 +100,10 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   );
 
   server.tool(
-    "unarchive_company",
+    "hudu_unarchive_company",
     "Unarchive a previously archived company in Hudu, making it visible again.",
     UnarchiveCompanySchema.shape,
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id }) => {
       try {
         const result = await client.unarchiveCompany(id);

@@ -126,12 +126,12 @@ All get-multiple tools return **full details by default**. Pass `summary: true` 
 
 | Tool | Description |
 |---|---|
-| `get_companies` | Get companies with optional name/type/search filters |
-| `get_company` | Get a company by ID |
-| `create_company` | Create a new company |
-| `update_company` | Update company fields |
-| `archive_company` | Archive a company |
-| `unarchive_company` | Unarchive a company |
+| `hudu_get_companies` | Get companies with optional name/type/search filters |
+| `hudu_get_company` | Get a company by ID |
+| `hudu_create_company` | Create a new company |
+| `hudu_update_company` | Update company fields |
+| `hudu_archive_company` | Archive a company |
+| `hudu_unarchive_company` | Unarchive a company |
 
 ### Assets
 
@@ -139,62 +139,62 @@ Assets in Hudu always belong to a company. All write operations require `company
 
 | Tool | Description |
 |---|---|
-| `get_assets` | Get assets across all companies (optional filters) |
-| `get_asset` | Get an asset by company ID and asset ID |
-| `create_asset` | Create an asset under a company |
-| `update_asset` | Update asset fields |
-| `archive_asset` | Archive an asset |
-| `unarchive_asset` | Unarchive an asset |
+| `hudu_get_assets` | Get assets across all companies (optional filters) |
+| `hudu_get_asset` | Get an asset by company ID and asset ID |
+| `hudu_create_asset` | Create an asset under a company |
+| `hudu_update_asset` | Update asset fields |
+| `hudu_archive_asset` | Archive an asset |
+| `hudu_unarchive_asset` | Unarchive an asset |
 
 ### Asset Layouts
 
 | Tool | Description |
 |---|---|
-| `get_asset_layouts` | Get all asset layouts |
-| `get_asset_layout` | Get an asset layout by ID |
-| `get_asset_layout_fields` | Get field definitions (label, type, required, hint) for an asset layout — use before writing custom_fields |
+| `hudu_get_asset_layouts` | Get all asset layouts |
+| `hudu_get_asset_layout` | Get an asset layout by ID |
+| `hudu_get_asset_layout_fields` | Get field definitions (label, type, required, hint) for an asset layout — use before writing custom_fields |
 
 ### Knowledge Base Articles
 
 | Tool | Description |
 |---|---|
-| `get_articles` | Get articles with optional company/draft/search filters |
-| `get_article` | Get an article by ID |
-| `create_article` | Create a new article |
-| `update_article` | Update article content or metadata |
-| `archive_article` | Archive an article |
-| `unarchive_article` | Unarchive an article |
+| `hudu_get_articles` | Get articles with optional company/draft/search filters |
+| `hudu_get_article` | Get an article by ID |
+| `hudu_create_article` | Create a new article |
+| `hudu_update_article` | Update article content or metadata |
+| `hudu_archive_article` | Archive an article |
+| `hudu_unarchive_article` | Unarchive an article |
 
 ### Relations
 
 | Tool | Description |
 |---|---|
-| `get_relations` | Get all relations between records |
-| `create_relation` | Create a relation between two records |
-| `delete_relation` | Delete a relation by ID |
+| `hudu_get_relations` | Get all relations between records |
+| `hudu_create_relation` | Create a relation between two records |
+| `hudu_delete_relation` | Delete a relation by ID |
 
 ### Flags
 
 | Tool | Description |
 |---|---|
-| `get_flags` | Get flags with optional filters |
-| `get_flag` | Get a flag by ID |
-| `create_flag` | Add a flag to a record |
-| `update_flag` | Update a flag |
-| `delete_flag` | Remove a flag |
+| `hudu_get_flags` | Get flags with optional filters |
+| `hudu_get_flag` | Get a flag by ID |
+| `hudu_create_flag` | Add a flag to a record |
+| `hudu_update_flag` | Update a flag |
+| `hudu_delete_flag` | Remove a flag |
 
 ### Flag Types
 
 | Tool | Description |
 |---|---|
-| `get_flag_types` | Get all flag types |
-| `get_flag_type` | Get a flag type by ID |
+| `hudu_get_flag_types` | Get all flag types |
+| `hudu_get_flag_type` | Get a flag type by ID |
 
 ---
 
 ## Summary Mode
 
-All get-multiple tools (`get_companies`, `get_assets`, etc.) accept an optional `summary: true` parameter. When enabled, heavy fields are stripped to reduce response size:
+All get-multiple tools (`hudu_get_companies`, `hudu_get_assets`, etc.) accept an optional `summary: true` parameter. When enabled, heavy fields are stripped to reduce response size:
 
 | Resource | Fields stripped | Replacement |
 |---|---|---|
@@ -249,3 +249,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and how to add ne
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+---
+
+Maintained by [Fulcra](https://www.fulcra.net/) — managed IT services and solutions for businesses and IT departments.
