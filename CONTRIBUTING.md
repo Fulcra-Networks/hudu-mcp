@@ -164,11 +164,13 @@ const GetWebsitesInput = ListWebsitesSchema.extend({
 });
 
 export function registerWebsiteTools(server: McpServer, client: HuduClient): void {
-  server.tool(
+  server.registerTool(
     "hudu_get_websites",
-    "Get websites from Hudu. Returns full details by default. Use summary: true for lightweight results.",
-    GetWebsitesInput.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get websites from Hudu. Returns full details by default. Use summary: true for lightweight results.",
+      inputSchema: GetWebsitesInput.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listWebsites(params as Record<string, unknown>);

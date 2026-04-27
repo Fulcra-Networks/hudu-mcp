@@ -17,11 +17,13 @@ const GetFlagsInput = ListFlagsSchema.extend({
 });
 
 export function registerFlagTools(server: McpServer, client: HuduClient): void {
-  server.tool(
+  server.registerTool(
     "hudu_get_flags",
-    "Get flags from Hudu. Returns full details by default. Optionally filter by flag type, the type of flagged record, or the flagged record ID.",
-    GetFlagsInput.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get flags from Hudu. Returns full details by default. Optionally filter by flag type, the type of flagged record, or the flagged record ID.",
+      inputSchema: GetFlagsInput.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listFlags(params as Record<string, unknown>);
@@ -32,11 +34,13 @@ export function registerFlagTools(server: McpServer, client: HuduClient): void {
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_get_flag",
-    "Get a single flag from Hudu by its ID.",
-    GetFlagSchema.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get a single flag from Hudu by its ID.",
+      inputSchema: GetFlagSchema.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         const result = await client.getFlag(id);
@@ -47,11 +51,13 @@ export function registerFlagTools(server: McpServer, client: HuduClient): void {
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_create_flag",
-    "Create a new flag on a Hudu record. Flags are visual indicators attached to records. Requires a flag_type_id, the type of record, and the record's ID.",
-    CreateFlagSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    {
+      description: "Create a new flag on a Hudu record. Flags are visual indicators attached to records. Requires a flag_type_id, the type of record, and the record's ID.",
+      inputSchema: CreateFlagSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
     async (args) => {
       try {
         const result = await client.createFlag(args as Record<string, unknown>);
@@ -62,11 +68,13 @@ export function registerFlagTools(server: McpServer, client: HuduClient): void {
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_update_flag",
-    "Update an existing flag in Hudu. Provide only the fields you want to change.",
-    UpdateFlagSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Update an existing flag in Hudu. Provide only the fields you want to change.",
+      inputSchema: UpdateFlagSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id, ...data }) => {
       try {
         const result = await client.updateFlag(id, data as Record<string, unknown>);
@@ -77,11 +85,13 @@ export function registerFlagTools(server: McpServer, client: HuduClient): void {
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_delete_flag",
-    "Delete a flag from a Hudu record by its ID.",
-    DeleteFlagSchema.shape,
-    { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Delete a flag from a Hudu record by its ID.",
+      inputSchema: DeleteFlagSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         await client.deleteFlag(id);

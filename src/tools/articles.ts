@@ -18,11 +18,13 @@ const GetArticlesInput = ListArticlesSchema.extend({
 });
 
 export function registerArticleTools(server: McpServer, client: HuduClient): void {
-  server.tool(
+  server.registerTool(
     "hudu_get_articles",
-    "Get knowledge base articles from Hudu. Returns full details by default. Optionally filter by company, name, draft status, or search term. Use summary: true for lightweight results.",
-    GetArticlesInput.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get knowledge base articles from Hudu. Returns full details by default. Optionally filter by company, name, draft status, or search term. Use summary: true for lightweight results.",
+      inputSchema: GetArticlesInput.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listArticles(params as Record<string, unknown>);
@@ -42,11 +44,13 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_get_article",
-    "Get a single knowledge base article from Hudu by its ID.",
-    GetArticleSchema.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get a single knowledge base article from Hudu by its ID.",
+      inputSchema: GetArticleSchema.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         const result = await client.getArticle(id);
@@ -57,11 +61,13 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_create_article",
-    "Create a new knowledge base article in Hudu. Optionally associate it with a company or folder.",
-    CreateArticleSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    {
+      description: "Create a new knowledge base article in Hudu. Optionally associate it with a company or folder.",
+      inputSchema: CreateArticleSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
     async (args) => {
       try {
         const result = await client.createArticle(args as Record<string, unknown>);
@@ -72,11 +78,13 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_update_article",
-    "Update an existing knowledge base article in Hudu. Provide only the fields you want to change.",
-    UpdateArticleSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Update an existing knowledge base article in Hudu. Provide only the fields you want to change.",
+      inputSchema: UpdateArticleSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id, ...data }) => {
       try {
         const result = await client.updateArticle(id, data as Record<string, unknown>);
@@ -87,11 +95,13 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_archive_article",
-    "Archive a knowledge base article in Hudu. Archived articles are hidden from normal views but not deleted.",
-    ArchiveArticleSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Archive a knowledge base article in Hudu. Archived articles are hidden from normal views but not deleted.",
+      inputSchema: ArchiveArticleSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         const result = await client.archiveArticle(id);
@@ -102,11 +112,13 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_unarchive_article",
-    "Unarchive a previously archived knowledge base article in Hudu, making it visible again.",
-    UnarchiveArticleSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Unarchive a previously archived knowledge base article in Hudu, making it visible again.",
+      inputSchema: UnarchiveArticleSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         const result = await client.unarchiveArticle(id);

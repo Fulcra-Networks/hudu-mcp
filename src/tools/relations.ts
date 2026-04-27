@@ -11,11 +11,13 @@ const GetRelationsInput = ListRelationsSchema.extend({
 });
 
 export function registerRelationTools(server: McpServer, client: HuduClient): void {
-  server.tool(
+  server.registerTool(
     "hudu_get_relations",
-    "Get relations between Hudu records (assets, companies, articles, etc.). Returns full details by default.",
-    GetRelationsInput.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get relations between Hudu records (assets, companies, articles, etc.). Returns full details by default.",
+      inputSchema: GetRelationsInput.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listRelations(params as Record<string, unknown>);
@@ -26,11 +28,13 @@ export function registerRelationTools(server: McpServer, client: HuduClient): vo
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_create_relation",
-    "Create a relation between two Hudu records. Both fromable and toable entities must be specified by type and ID.",
-    CreateRelationSchema.shape,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    {
+      description: "Create a relation between two Hudu records. Both fromable and toable entities must be specified by type and ID.",
+      inputSchema: CreateRelationSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
     async (args) => {
       try {
         const result = await client.createRelation(args as Record<string, unknown>);
@@ -41,11 +45,13 @@ export function registerRelationTools(server: McpServer, client: HuduClient): vo
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_delete_relation",
-    "Delete a relation between two Hudu records by its ID.",
-    DeleteRelationSchema.shape,
-    { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Delete a relation between two Hudu records by its ID.",
+      inputSchema: DeleteRelationSchema.shape,
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         await client.deleteRelation(id);

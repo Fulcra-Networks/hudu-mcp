@@ -11,11 +11,13 @@ const GetFlagTypesInput = ListFlagTypesSchema.extend({
 });
 
 export function registerFlagTypeTools(server: McpServer, client: HuduClient): void {
-  server.tool(
+  server.registerTool(
     "hudu_get_flag_types",
-    "Get flag types from Hudu. Returns full details by default. Flag types define the appearance and meaning of flags on records.",
-    GetFlagTypesInput.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get flag types from Hudu. Returns full details by default. Flag types define the appearance and meaning of flags on records.",
+      inputSchema: GetFlagTypesInput.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ summary, ...params }) => {
       try {
         const result = await client.listFlagTypes(params as Record<string, unknown>);
@@ -26,11 +28,13 @@ export function registerFlagTypeTools(server: McpServer, client: HuduClient): vo
     }
   );
 
-  server.tool(
+  server.registerTool(
     "hudu_get_flag_type",
-    "Get a single flag type from Hudu by its ID.",
-    GetFlagTypeSchema.shape,
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    {
+      description: "Get a single flag type from Hudu by its ID.",
+      inputSchema: GetFlagTypeSchema.shape,
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
     async ({ id }) => {
       try {
         const result = await client.getFlagType(id);
