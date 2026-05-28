@@ -14,7 +14,7 @@ A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT do
 - **Relations** — get multiple, create, delete (link any two Hudu records)
 - **Flags** — get multiple, get by ID, create, update, delete
 - **Flag Types** — get multiple, get by ID (read-only)
-- **Summary mode** — all get-multiple tools accept `summary: true` for lightweight results
+- **Three response modes** — default (null-stripped), `summary: true` (lightweight), `full_detail: true` (raw API response)
 - Clean error messages for auth failures, missing resources, and validation errors
 - Works with Claude Desktop, VS Code MCP extension, and all stdio-based MCP clients
 
@@ -120,7 +120,7 @@ Add to your VS Code MCP settings:
 
 ## Tool Reference
 
-All get-multiple tools return **full details by default**. Pass `summary: true` to get lightweight results with heavy fields stripped (see [Summary Mode](#summary-mode) below).
+All get-multiple tools return **full details by default** (null values stripped). Pass `summary: true` to get lightweight results with heavy fields stripped, or `full_detail: true` for the raw API response including null values (see [Response Modes](#response-modes) below).
 
 ### Companies
 
@@ -192,9 +192,19 @@ Assets in Hudu always belong to a company. All write operations require `company
 
 ---
 
-## Summary Mode
+## Response Modes
 
-All get-multiple tools (`hudu_get_companies`, `hudu_get_assets`, etc.) accept an optional `summary: true` parameter. When enabled, heavy fields are stripped to reduce response size:
+All read tools support three response modes:
+
+| Mode | Parameter | Behavior |
+|---|---|---|
+| **Default** | _(omit both)_ | Full API response with null values stripped. Best for most tasks. |
+| **Summary** | `summary: true` | Lightweight results — heavy fields stripped per resource (see table below). Use for browsing or scanning large result sets. |
+| **Full detail** | `full_detail: true` | Raw API response including null values. Use when exploring unpopulated fields (e.g. integration card fields). |
+
+`summary` takes precedence over `full_detail` if both are set.
+
+### Summary mode — fields stripped
 
 | Resource | Fields stripped | Replacement |
 |---|---|---|
@@ -205,8 +215,6 @@ All get-multiple tools (`hudu_get_companies`, `hudu_get_assets`, etc.) accept an
 | Relations | _(none — already lean)_ | — |
 | Flags | _(none — already lean)_ | — |
 | Flag Types | _(none — already lean)_ | — |
-
-Use summary mode for browsing or scanning large result sets. Omit it (the default) to get full details.
 
 ---
 

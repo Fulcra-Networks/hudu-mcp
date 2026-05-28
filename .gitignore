@@ -1,12 +1,14 @@
 node_modules/
 dist/
-.env
+api-docs/
 api-docs.json
+.env
 coverage/
 *.tsbuildinfo
 
 # Local dev / planning files
 .claude/
+docs/
 PLAN.md
 test-prompt.md
 

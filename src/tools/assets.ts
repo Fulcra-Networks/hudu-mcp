@@ -11,21 +11,28 @@ import {
   UnarchiveAssetSchema,
 } from "../schemas/assets.js";
 
+const FULL_DETAIL_DESC = "When true, preserve null values and return the complete raw API payload. Use when exploring all available fields including unpopulated ones. summary takes precedence if both are set.";
+
 const GetAssetsInput = ListAssetsSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details. Useful for browsing or scanning large result sets."
   ),
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
+});
+
+const GetAssetInput = GetAssetSchema.extend({
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
 });
 
 export function registerAssetTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
     "hudu_get_assets",
     {
-      description: "Get assets across all companies in Hudu. Returns full details by default. Optionally filter by company, asset layout, name, or search term. Use summary: true for lightweight results.",
+      description: "Get assets across all companies in Hudu. Returns full details by default (null values stripped). Optionally filter by company, asset layout, name, or search term. Use summary: true for lightweight results, full_detail: true for the raw API response including null values.",
       inputSchema: GetAssetsInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ summary, ...params }) => {
+    async ({ summary, full_detail, ...params }) => {
       try {
         const result = await client.listAssets(params as Record<string, unknown>);
         if (summary) {
@@ -34,7 +41,8 @@ export function registerAssetTools(server: McpServer, client: HuduClient): void 
           );
           return formatToolSuccess(withPaginationMeta({ assets: items }, "assets", params));
         }
-        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "assets", params));
+        const opts = full_detail ? { preserveNulls: true } : undefined;
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "assets", params), opts);
       } catch (error) {
         return formatToolError(error);
       }
@@ -44,14 +52,14 @@ export function registerAssetTools(server: McpServer, client: HuduClient): void 
   server.registerTool(
     "hudu_get_asset",
     {
-      description: "Get a single asset from Hudu by company ID and asset ID.",
-      inputSchema: GetAssetSchema.shape,
+      description: "Get a single asset from Hudu by company ID and asset ID. Use full_detail: true to include null values (e.g. unpopulated integration card fields) in the response.",
+      inputSchema: GetAssetInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ company_id, id }) => {
+    async ({ company_id, id, full_detail }) => {
       try {
         const result = await client.getAsset(company_id, id);
-        return formatToolSuccess(result);
+        return formatToolSuccess(result, full_detail ? { preserveNulls: true } : undefined);
       } catch (error) {
         return formatToolError(error);
       }

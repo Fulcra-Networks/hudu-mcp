@@ -40,7 +40,11 @@ The generator has overrides for Swagger inaccuracies:
   - `hudu_get_<resource>` (singular) — get one item by ID, always returns full details
   - `hudu_create_<resource>`, `hudu_update_<resource>`, `hudu_archive_<resource>`, `hudu_unarchive_<resource>`, `hudu_delete_<resource>` — write operations
 - All tools include MCP annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint) in the config object passed to `server.registerTool()`.
-- The `summary` param is added via `.extend()` on the auto-generated `List*Schema` in each tool file — not in the schema files themselves
+- Response detail modes (read tools only — not write/archive/delete):
+  - **Default** — `formatToolSuccess()` strips null values recursively before serialization. Empty strings, empty arrays, and empty objects are preserved.
+  - **`summary: true`** — strips heavy fields per resource (cards from assets, content from articles, fields from layouts, etc.). Overrides `full_detail`.
+  - **`full_detail: true`** — passes `{ preserveNulls: true }` to `formatToolSuccess()`, bypassing null stripping. Use when exploring integration card fields or any unpopulated fields. `summary` takes precedence if both are set.
+- The `summary` and `full_detail` params are added via `.extend()` on the auto-generated `List*Schema` (for list tools) or `Get*Schema` (for single-get tools) in each tool file — not in the schema files themselves
 - Tool handlers never throw — always return `formatToolSuccess` or `formatToolError`
 - All Zod fields use `.describe()` — these are shown to Claude as parameter descriptions
 - Imports use `.js` extension (ESM/NodeNext module resolution)

@@ -11,21 +11,28 @@ import {
   UnarchiveCompanySchema,
 } from "../schemas/companies.js";
 
+const FULL_DETAIL_DESC = "When true, preserve null values and return the complete raw API payload. Use when exploring all available fields including unpopulated ones. summary takes precedence if both are set.";
+
 const GetCompaniesInput = ListCompaniesSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details. Useful for browsing or scanning large result sets."
   ),
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
+});
+
+const GetCompanyInput = GetCompanySchema.extend({
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
 });
 
 export function registerCompanyTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
     "hudu_get_companies",
     {
-      description: "Get companies from Hudu. Returns full details by default. Optionally filter by name, company type, or a search term. Use summary: true for lightweight results.",
+      description: "Get companies from Hudu. Returns full details by default (null values stripped). Optionally filter by name, company type, or a search term. Use summary: true for lightweight results, full_detail: true for the raw API response including null values.",
       inputSchema: GetCompaniesInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ summary, ...params }) => {
+    async ({ summary, full_detail, ...params }) => {
       try {
         const result = await client.listCompanies(params as Record<string, unknown>);
         if (summary) {
@@ -34,7 +41,8 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
           );
           return formatToolSuccess(withPaginationMeta({ companies: items }, "companies", params));
         }
-        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "companies", params));
+        const opts = full_detail ? { preserveNulls: true } : undefined;
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "companies", params), opts);
       } catch (error) {
         return formatToolError(error);
       }
@@ -44,14 +52,14 @@ export function registerCompanyTools(server: McpServer, client: HuduClient): voi
   server.registerTool(
     "hudu_get_company",
     {
-      description: "Get a single company from Hudu by its ID.",
-      inputSchema: GetCompanySchema.shape,
+      description: "Get a single company from Hudu by its ID. Use full_detail: true to include null values in the response.",
+      inputSchema: GetCompanyInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ id }) => {
+    async ({ id, full_detail }) => {
       try {
         const result = await client.getCompany(id);
-        return formatToolSuccess(result);
+        return formatToolSuccess(result, full_detail ? { preserveNulls: true } : undefined);
       } catch (error) {
         return formatToolError(error);
       }

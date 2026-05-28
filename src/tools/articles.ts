@@ -11,21 +11,28 @@ import {
   UnarchiveArticleSchema,
 } from "../schemas/articles.js";
 
+const FULL_DETAIL_DESC = "When true, preserve null values and return the complete raw API payload. Use when exploring all available fields including unpopulated ones. summary takes precedence if both are set.";
+
 const GetArticlesInput = ListArticlesSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details. Replaces content with a short content_preview."
   ),
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
+});
+
+const GetArticleInput = GetArticleSchema.extend({
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
 });
 
 export function registerArticleTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
     "hudu_get_articles",
     {
-      description: "Get knowledge base articles from Hudu. Returns full details by default. Optionally filter by company, name, draft status, or search term. Use summary: true for lightweight results.",
+      description: "Get knowledge base articles from Hudu. Returns full details by default (null values stripped). Optionally filter by company, name, draft status, or search term. Use summary: true for lightweight results, full_detail: true for the raw API response including null values.",
       inputSchema: GetArticlesInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ summary, ...params }) => {
+    async ({ summary, full_detail, ...params }) => {
       try {
         const result = await client.listArticles(params as Record<string, unknown>);
         if (summary) {
@@ -37,7 +44,8 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
           );
           return formatToolSuccess(withPaginationMeta({ articles: items }, "articles", params));
         }
-        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "articles", params));
+        const opts = full_detail ? { preserveNulls: true } : undefined;
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "articles", params), opts);
       } catch (error) {
         return formatToolError(error);
       }
@@ -47,14 +55,14 @@ export function registerArticleTools(server: McpServer, client: HuduClient): voi
   server.registerTool(
     "hudu_get_article",
     {
-      description: "Get a single knowledge base article from Hudu by its ID.",
-      inputSchema: GetArticleSchema.shape,
+      description: "Get a single knowledge base article from Hudu by its ID. Use full_detail: true to include null values in the response.",
+      inputSchema: GetArticleInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ id }) => {
+    async ({ id, full_detail }) => {
       try {
         const result = await client.getArticle(id);
-        return formatToolSuccess(result);
+        return formatToolSuccess(result, full_detail ? { preserveNulls: true } : undefined);
       } catch (error) {
         return formatToolError(error);
       }

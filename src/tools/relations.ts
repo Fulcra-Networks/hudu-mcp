@@ -4,24 +4,28 @@ import type { HuduClient } from "../client/HuduClient.js";
 import { formatToolSuccess, formatToolError, withPaginationMeta } from "../types/mcp.js";
 import { ListRelationsSchema, CreateRelationSchema, DeleteRelationSchema } from "../schemas/relations.js";
 
+const FULL_DETAIL_DESC = "When true, preserve null values and return the complete raw API payload. Use when exploring all available fields including unpopulated ones. summary takes precedence if both are set.";
+
 const GetRelationsInput = ListRelationsSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details. Useful for browsing or scanning large result sets."
   ),
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
 });
 
 export function registerRelationTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
     "hudu_get_relations",
     {
-      description: "Get relations between Hudu records (assets, companies, articles, etc.). Returns full details by default.",
+      description: "Get relations between Hudu records (assets, companies, articles, etc.). Returns full details by default (null values stripped). Use full_detail: true for the raw API response including null values.",
       inputSchema: GetRelationsInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ summary, ...params }) => {
+    async ({ summary, full_detail, ...params }) => {
       try {
         const result = await client.listRelations(params as Record<string, unknown>);
-        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "relations", params));
+        const opts = full_detail ? { preserveNulls: true } : undefined;
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "relations", params), opts);
       } catch (error) {
         return formatToolError(error);
       }

@@ -2,10 +2,25 @@ import { ZodError } from "zod";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { HuduApiError } from "../client/HuduApiError.js";
 
-const MAX_RESPONSE_CHARS = 25_000;
+const MAX_RESPONSE_CHARS = 50_000;
 
-export function formatToolSuccess(data: unknown): CallToolResult {
-  const text = JSON.stringify(data, null, 2);
+function stripNullValues(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(stripNullValues);
+  }
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, v]) => v !== null)
+        .map(([k, v]) => [k, stripNullValues(v)])
+    );
+  }
+  return value;
+}
+
+export function formatToolSuccess(data: unknown, options?: { preserveNulls?: boolean }): CallToolResult {
+  const processed = options?.preserveNulls ? data : stripNullValues(data);
+  const text = JSON.stringify(processed, null, 2);
   if (text.length > MAX_RESPONSE_CHARS) {
     return {
       content: [{

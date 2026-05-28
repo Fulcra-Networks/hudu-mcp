@@ -4,21 +4,28 @@ import type { HuduClient } from "../client/HuduClient.js";
 import { formatToolSuccess, formatToolError, withPaginationMeta } from "../types/mcp.js";
 import { ListAssetLayoutsSchema, GetAssetLayoutSchema } from "../schemas/assetLayouts.js";
 
+const FULL_DETAIL_DESC = "When true, preserve null values and return the complete raw API payload. Use when exploring all available fields including unpopulated ones. summary takes precedence if both are set.";
+
 const GetAssetLayoutsInput = ListAssetLayoutsSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details. Replaces fields array with field_count."
   ),
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
+});
+
+const GetAssetLayoutInput = GetAssetLayoutSchema.extend({
+  full_detail: z.boolean().optional().describe(FULL_DETAIL_DESC),
 });
 
 export function registerAssetLayoutTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
     "hudu_get_asset_layouts",
     {
-      description: "Get asset layouts from Hudu. Returns full details by default. Asset layouts define the structure and fields for a category of assets. Use summary: true for lightweight results.",
+      description: "Get asset layouts from Hudu. Returns full details by default (null values stripped). Asset layouts define the structure and fields for a category of assets. Use summary: true for lightweight results, full_detail: true for the raw API response including null values.",
       inputSchema: GetAssetLayoutsInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ summary, ...params }) => {
+    async ({ summary, full_detail, ...params }) => {
       try {
         const result = await client.listAssetLayouts(params as Record<string, unknown>);
         if (summary) {
@@ -30,7 +37,8 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
           );
           return formatToolSuccess(withPaginationMeta({ asset_layouts: items }, "asset_layouts", params));
         }
-        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "asset_layouts", params));
+        const opts = full_detail ? { preserveNulls: true } : undefined;
+        return formatToolSuccess(withPaginationMeta(result as Record<string, unknown>, "asset_layouts", params), opts);
       } catch (error) {
         return formatToolError(error);
       }
@@ -40,14 +48,14 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
   server.registerTool(
     "hudu_get_asset_layout",
     {
-      description: "Get a single asset layout from Hudu by its ID.",
-      inputSchema: GetAssetLayoutSchema.shape,
+      description: "Get a single asset layout from Hudu by its ID. Use full_detail: true to include null values in the response.",
+      inputSchema: GetAssetLayoutInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ id }) => {
+    async ({ id, full_detail }) => {
       try {
         const result = await client.getAssetLayout(id);
-        return formatToolSuccess(result);
+        return formatToolSuccess(result, full_detail ? { preserveNulls: true } : undefined);
       } catch (error) {
         return formatToolError(error);
       }
@@ -57,11 +65,11 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
   server.registerTool(
     "hudu_get_asset_layout_fields",
     {
-      description: "Get the field definitions for an asset layout. Returns only the information needed to populate custom_fields correctly: label, field_type, required, and hint. Call this before create_asset or update_asset to ensure custom_fields keys match the exact field labels defined in the layout.",
-      inputSchema: { id: GetAssetLayoutSchema.shape.id },
+      description: "Get the field definitions for an asset layout. Returns only the information needed to populate custom_fields correctly: label, field_type, required, and hint. Call this before create_asset or update_asset to ensure custom_fields keys match the exact field labels defined in the layout. Use full_detail: true to include null values in the response.",
+      inputSchema: { id: GetAssetLayoutSchema.shape.id, full_detail: GetAssetLayoutInput.shape.full_detail },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ id }) => {
+    async ({ id, full_detail }) => {
       try {
         const result = await client.getAssetLayout(id) as Record<string, unknown>;
         const layout = result.asset_layout as Record<string, unknown> | undefined;
@@ -69,7 +77,7 @@ export function registerAssetLayoutTools(server: McpServer, client: HuduClient):
         const fieldDefs = (fields as Record<string, unknown>[]).map(
           ({ label, field_type, required, hint }) => ({ label, field_type, required, hint })
         );
-        return formatToolSuccess({ asset_layout_id: id, fields: fieldDefs });
+        return formatToolSuccess({ asset_layout_id: id, fields: fieldDefs }, full_detail ? { preserveNulls: true } : undefined);
       } catch (error) {
         return formatToolError(error);
       }
