@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT do
 
 ## Features
 
-- **30 MCP tools** covering the core Hudu API surface
+- **35 MCP tools** covering the core Hudu API surface
 - **Companies** — get multiple, get by ID, create, update, archive, unarchive
 - **Assets** — get multiple, get by ID, create, update, archive, unarchive (company-scoped)
 - **Asset Layouts** — get multiple, get by ID (read-only)
@@ -14,6 +14,7 @@ A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT do
 - **Relations** — get multiple, create, delete (link any two Hudu records)
 - **Flags** — get multiple, get by ID, create, update, delete
 - **Flag Types** — get multiple, get by ID (read-only)
+- **Websites** — get multiple, get by ID, create, update, delete (Core assets — HTTP/SSL/DNS/WHOIS monitoring)
 - **Three response modes** — default (null-stripped), `summary: true` (lightweight), `full_detail: true` (raw API response)
 - Clean error messages for auth failures, missing resources, and validation errors
 - Works with Claude Desktop, VS Code MCP extension, and all stdio-based MCP clients
@@ -190,6 +191,18 @@ Assets in Hudu always belong to a company. All write operations require `company
 | `hudu_get_flag_types` | Get all flag types |
 | `hudu_get_flag_type` | Get a flag type by ID |
 
+### Websites
+
+Websites are what the Hudu UI calls "Core" assets — monitored URLs with HTTP status, SSL, DNS, and WHOIS checks. Hudu has no archive/unarchive tier for websites; delete is permanent.
+
+| Tool | Description |
+|---|---|
+| `hudu_get_websites` | Get websites with optional name/slug/search filters |
+| `hudu_get_website` | Get a website by ID |
+| `hudu_create_website` | Create a new website under a company |
+| `hudu_update_website` | Update website fields |
+| `hudu_delete_website` | Delete a website |
+
 ---
 
 ## Response Modes
@@ -215,6 +228,7 @@ All read tools support three response modes:
 | Relations | _(none — already lean)_ | — |
 | Flags | _(none — already lean)_ | — |
 | Flag Types | _(none — already lean)_ | — |
+| Websites | _(none — already lean)_ | — |
 
 ---
 

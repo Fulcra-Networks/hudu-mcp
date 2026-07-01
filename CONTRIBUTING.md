@@ -124,21 +124,23 @@ A small set of overrides handles cases where the spec is inaccurate:
 
 ## Adding a New Resource
 
-Follow these steps to add support for a new Hudu resource (e.g. Websites):
+Follow these steps to add support for a new Hudu resource (e.g. Asset Passwords). `src/tools/websites.ts` and the `// ── Websites ──` section of `HuduClient.ts` are a complete, real worked example to copy from — they're a good reference for the two-tier tool pattern and for handling Swagger inaccuracies (see the callout in step 1).
 
 ### 1. Add client methods to `HuduClient.ts`
 
 ```typescript
-// ── Websites ────────────────────────────────────────────────────────────────
+// ── Passwords ───────────────────────────────────────────────────────────────
 
-async listWebsites(params?: Record<string, unknown>) {
-  return this.request<{ websites: unknown[] }>("GET", "/websites", undefined, params);
+async listPasswords(params?: Record<string, unknown>) {
+  return this.request<{ asset_passwords: unknown[] }>("GET", "/asset_passwords", undefined, params);
 }
 
-async getWebsite(id: number) {
-  return this.request<{ website: unknown }>("GET", `/websites/${id}`);
+async getPassword(id: number) {
+  return this.request<{ asset_password: unknown }>("GET", `/asset_passwords/${id}`);
 }
 ```
+
+Check the Swagger response `schema` for each endpoint before assuming it wraps results in `{ resource: ... }` like most do — `/websites` doesn't, and `HuduClient.listWebsites`/`getWebsite`/etc. wrap the bare response manually to keep the client interface consistent. Do the same if you find another resource with unwrapped responses.
 
 ### 2. Add schema mappings to `scripts/generate-schemas.ts`
 
@@ -148,32 +150,32 @@ Add entries to the `buildSchemas()` function mapping Swagger paths to export nam
 npm run generate:schemas
 ```
 
-### 3. Create `src/tools/websites.ts`
+### 3. Create `src/tools/passwords.ts`
 
 ```typescript
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { HuduClient } from "../client/HuduClient.js";
 import { formatToolSuccess, formatToolError } from "../types/mcp.js";
-import { ListWebsitesSchema, GetWebsiteSchema } from "../schemas/websites.js";
+import { ListPasswordsSchema, GetPasswordSchema } from "../schemas/passwords.js";
 
-const GetWebsitesInput = ListWebsitesSchema.extend({
+const GetPasswordsInput = ListPasswordsSchema.extend({
   summary: z.boolean().optional().describe(
     "When true, return lightweight summaries instead of full details."
   ),
 });
 
-export function registerWebsiteTools(server: McpServer, client: HuduClient): void {
+export function registerPasswordTools(server: McpServer, client: HuduClient): void {
   server.registerTool(
-    "hudu_get_websites",
+    "hudu_get_passwords",
     {
-      description: "Get websites from Hudu. Returns full details by default. Use summary: true for lightweight results.",
-      inputSchema: GetWebsitesInput.shape,
+      description: "Get asset passwords from Hudu. Returns full details by default. Use summary: true for lightweight results.",
+      inputSchema: GetPasswordsInput.shape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async ({ summary, ...params }) => {
       try {
-        const result = await client.listWebsites(params as Record<string, unknown>);
+        const result = await client.listPasswords(params as Record<string, unknown>);
         if (summary) {
           // strip heavy fields if applicable
         }
@@ -191,11 +193,11 @@ export function registerWebsiteTools(server: McpServer, client: HuduClient): voi
 ### 4. Register in `src/tools/index.ts`
 
 ```typescript
-import { registerWebsiteTools } from "./websites.js";
+import { registerPasswordTools } from "./passwords.js";
 
 export function registerAllTools(server: McpServer, client: HuduClient): void {
   // ... existing registrations
-  registerWebsiteTools(server, client);
+  registerPasswordTools(server, client);
 }
 ```
 

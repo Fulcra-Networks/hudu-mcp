@@ -456,6 +456,41 @@ function buildSchemas(spec: SwaggerSpec): Record<string, SchemaDef[]> {
     },
   ];
 
+  // --- Websites ---
+  output["websites.ts"] = [
+    {
+      exportName: "ListWebsitesSchema",
+      fields: queryParamsToFields(getQueryParams(spec, "/websites", "get")),
+    },
+    {
+      exportName: "GetWebsiteSchema",
+      fields: pathParamsToFields(getPathParams(spec, "/websites/{id}", "get")),
+    },
+    {
+      exportName: "CreateWebsiteSchema",
+      fields: bodyPropsToFields(
+        getBodyProperties(spec, "/websites", "post", "website"),
+        "websites"
+      ),
+    },
+    {
+      exportName: "UpdateWebsiteSchema",
+      fields: [
+        ...pathParamsToFields(getPathParams(spec, "/websites/{id}", "put")),
+        ...bodyPropsToFields(
+          getBodyProperties(spec, "/websites/{id}", "put", "website"),
+          "websites"
+        ),
+      ],
+    },
+    {
+      exportName: "DeleteWebsiteSchema",
+      fields: pathParamsToFields(
+        getPathParams(spec, "/websites/{id}", "delete")
+      ),
+    },
+  ];
+
   // --- Relations ---
   output["relations.ts"] = [
     {

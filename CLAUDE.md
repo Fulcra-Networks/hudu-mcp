@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-MCP server for the Hudu IT documentation platform. 30 tools across 7 resource types (companies, assets, articles, asset layouts, flags, flag types, relations).
+MCP server for the Hudu IT documentation platform. 35 tools across 8 resource types (companies, assets, articles, asset layouts, flags, flag types, relations, websites).
 
 ## Key Files
 
@@ -54,3 +54,5 @@ The generator has overrides for Swagger inaccuracies:
 ## Known API Limitations
 
 - Article creation is always attributed to the API key owner (no `user_id` param)
+- Website endpoints (`/websites`) return bare objects/arrays instead of the `{ website: ... }` envelope every other resource uses — `HuduClient` wraps them manually to keep the client interface consistent
+- Websites have no archive/unarchive endpoints — `hudu_delete_website` is a permanent delete

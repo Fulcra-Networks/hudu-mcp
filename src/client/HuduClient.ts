@@ -192,4 +192,32 @@ export class HuduClient {
   async getFlagType(id: number) {
     return this.request<{ flag_type: unknown }>("GET", `/flag_types/${id}`);
   }
+
+  // ── Websites ──────────────────────────────────────────────────────────────────
+  // Unlike other resources, Hudu's website endpoints return bare objects/arrays
+  // instead of a { website: ... } envelope — wrapped here to match the rest of the client.
+
+  async listWebsites(params?: Record<string, unknown>) {
+    const websites = await this.request<unknown[]>("GET", "/websites", undefined, params);
+    return { websites };
+  }
+
+  async getWebsite(id: number) {
+    const website = await this.request<unknown>("GET", `/websites/${id}`);
+    return { website };
+  }
+
+  async createWebsite(data: Record<string, unknown>) {
+    const website = await this.request<unknown>("POST", "/websites", { website: data });
+    return { website };
+  }
+
+  async updateWebsite(id: number, data: Record<string, unknown>) {
+    const website = await this.request<unknown>("PUT", `/websites/${id}`, { website: data });
+    return { website };
+  }
+
+  async deleteWebsite(id: number) {
+    return this.request<void>("DELETE", `/websites/${id}`);
+  }
 }
