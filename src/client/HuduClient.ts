@@ -193,6 +193,28 @@ export class HuduClient {
     return this.request<{ flag_type: unknown }>("GET", `/flag_types/${id}`);
   }
 
+  // ── Folders ───────────────────────────────────────────────────────────────────
+
+  async listFolders(params?: Record<string, unknown>) {
+    return this.request<{ folders: unknown[] }>("GET", "/folders", undefined, params);
+  }
+
+  async getFolder(id: number) {
+    return this.request<{ folder: unknown }>("GET", `/folders/${id}`);
+  }
+
+  async createFolder(data: Record<string, unknown>) {
+    return this.request<{ folder: unknown }>("POST", "/folders", { folder: data });
+  }
+
+  async updateFolder(id: number, data: Record<string, unknown>) {
+    return this.request<{ folder: unknown }>("PUT", `/folders/${id}`, { folder: data });
+  }
+
+  async deleteFolder(id: number) {
+    return this.request<void>("DELETE", `/folders/${id}`);
+  }
+
   // ── Websites ──────────────────────────────────────────────────────────────────
   // Unlike other resources, Hudu's website endpoints return bare objects/arrays
   // instead of a { website: ... } envelope — wrapped here to match the rest of the client.

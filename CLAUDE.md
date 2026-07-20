@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-MCP server for the Hudu IT documentation platform. 35 tools across 8 resource types (companies, assets, articles, asset layouts, flags, flag types, relations, websites).
+MCP server for the Hudu IT documentation platform. 40 tools across 9 resource types (companies, assets, articles, asset layouts, flags, flag types, relations, websites, folders).
 
 ## Key Files
 

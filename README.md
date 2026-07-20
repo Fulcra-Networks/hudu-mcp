@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT do
 
 ## Features
 
-- **35 MCP tools** covering the core Hudu API surface
+- **40 MCP tools** covering the core Hudu API surface
 - **Companies** — get multiple, get by ID, create, update, archive, unarchive
 - **Assets** — get multiple, get by ID, create, update, archive, unarchive (company-scoped)
 - **Asset Layouts** — get multiple, get by ID (read-only)
@@ -15,6 +15,7 @@ A Model Context Protocol (MCP) server for the [Hudu](https://www.hudu.com) IT do
 - **Flags** — get multiple, get by ID, create, update, delete
 - **Flag Types** — get multiple, get by ID (read-only)
 - **Websites** — get multiple, get by ID, create, update, delete (Core assets — HTTP/SSL/DNS/WHOIS monitoring)
+- **Folders** — get multiple, get by ID, create, update, delete (KB folder hierarchy)
 - **Three response modes** — default (null-stripped), `summary: true` (lightweight), `full_detail: true` (raw API response)
 - Clean error messages for auth failures, missing resources, and validation errors
 - Works with Claude Desktop, VS Code MCP extension, and all stdio-based MCP clients
@@ -191,6 +192,18 @@ Assets in Hudu always belong to a company. All write operations require `company
 | `hudu_get_flag_types` | Get all flag types |
 | `hudu_get_flag_type` | Get a flag type by ID |
 
+### Folders
+
+KB folders organize knowledge base articles into a hierarchy. Use `parent_folder_id` to nest folders, and `company_id` to scope a folder to a specific company.
+
+| Tool | Description |
+|---|---|
+| `hudu_get_folders` | Get folders with optional name/company filters |
+| `hudu_get_folder` | Get a folder by ID |
+| `hudu_create_folder` | Create a new folder |
+| `hudu_update_folder` | Update folder fields |
+| `hudu_delete_folder` | Delete a folder |
+
 ### Websites
 
 Websites are what the Hudu UI calls "Core" assets — monitored URLs with HTTP status, SSL, DNS, and WHOIS checks. Hudu has no archive/unarchive tier for websites; delete is permanent.
@@ -228,6 +241,7 @@ All read tools support three response modes:
 | Relations | _(none — already lean)_ | — |
 | Flags | _(none — already lean)_ | — |
 | Flag Types | _(none — already lean)_ | — |
+| Folders | `description` | _(dropped)_ |
 | Websites | _(none — already lean)_ | — |
 
 ---

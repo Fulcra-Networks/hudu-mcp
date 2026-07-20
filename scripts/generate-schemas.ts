@@ -203,6 +203,7 @@ const FIELD_TYPE_OVERRIDES: Record<string, string> = {
 // Fields that should be required even though Swagger doesn't mark them
 const REQUIRED_OVERRIDES: Record<string, string[]> = {
   "relations.CreateRelationSchema": ["fromable_id", "fromable_type", "toable_id", "toable_type"],
+  "folders.CreateFolderSchema": ["name"],
 };
 
 // Description overrides for fields with missing/bad descriptions
@@ -487,6 +488,41 @@ function buildSchemas(spec: SwaggerSpec): Record<string, SchemaDef[]> {
       exportName: "DeleteWebsiteSchema",
       fields: pathParamsToFields(
         getPathParams(spec, "/websites/{id}", "delete")
+      ),
+    },
+  ];
+
+  // --- Folders ---
+  output["folders.ts"] = [
+    {
+      exportName: "ListFoldersSchema",
+      fields: queryParamsToFields(getQueryParams(spec, "/folders", "get")),
+    },
+    {
+      exportName: "GetFolderSchema",
+      fields: pathParamsToFields(getPathParams(spec, "/folders/{id}", "get")),
+    },
+    {
+      exportName: "CreateFolderSchema",
+      fields: bodyPropsToFields(
+        getBodyProperties(spec, "/folders", "post", "folder"),
+        "folders"
+      ),
+    },
+    {
+      exportName: "UpdateFolderSchema",
+      fields: [
+        ...pathParamsToFields(getPathParams(spec, "/folders/{id}", "put")),
+        ...bodyPropsToFields(
+          getBodyProperties(spec, "/folders/{id}", "put", "folder"),
+          "folders"
+        ),
+      ],
+    },
+    {
+      exportName: "DeleteFolderSchema",
+      fields: pathParamsToFields(
+        getPathParams(spec, "/folders/{id}", "delete")
       ),
     },
   ];
